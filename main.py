@@ -3,6 +3,10 @@ import os
 from PIL import Image
 import torch
 from diffusers import StableDiffusion3Pipeline
+from huggingface_hub import login
+
+login(token=os.environ.get("HUGGING_FACE_HUB_TOKEN"))
+
 
 device = "cuda"
 
