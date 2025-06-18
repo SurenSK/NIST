@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!-- 
+
+DTD for a results of a single generator run 
+
+  GeneratorResults - Contains the generation results of a single system.
+                    This may include either a single run or multiple runs against all the topics. 
+
+     teamName - The team name identifier
+
+  GeneratorRunResult - Contains the generation results of a single run with given configuration.
+
+     trainingData - what kind of training data was applied to the model (system)
+     priority     - evaluation priority (1,2,...) If not all runs can be judged, then judging will begin with the run with priorty 1 and so on.
+     trained      - A boolean (T or F) to indicate if the run was the output of a trained system by the team specifically for this task (T) or the output of an already existing system that the team used to generate the outputs (F)
+     desc         - Name of the base model
+     link         - A link to the model used to generate the run (e.g. GitHub, etc)
+
+
+  GeneratorTopicResult
+     topic - topic ID
+     elapsedTime  - would be the time in seconds from the time the system is presented with the
+                   topic until generating the image
+     usedImagePrompts - A boolean to indicate if a topic has used sample image as part of the prompt
+
+  Image
+     filename     - filename
+     prompt       - the textual component of the prompt used for generating an image
+     NIST-prompt  - A boolean to indicate if the generated image was based on the provided based on the official prompt (T), or based on a modified prompt by the team (F).
+
+-->
+
+<!ELEMENT GeneratorResults (GeneratorRunResult+)>
+<!ELEMENT GeneratorRunResult (GeneratorTopicResult+)>
+<!ELEMENT GeneratorTopicResult (Image*)>
+<!ELEMENT Image EMPTY>
+
+<!ATTLIST GeneratorResults
+    teamName CDATA #REQUIRED>
+
+<!ATTLIST GeneratorRunResult   
+    trainingData CDATA #REQUIRED
+    priority (1|2|3|4|5|6|7|8|9|10) #REQUIRED
+    trained (T|F) #REQUIRED
+    desc CDATA #REQUIRED
+    link CDATA #IMPLIED>
+
+<!ATTLIST GeneratorTopicResult 
+    topic CDATA #REQUIRED
+    elapsedTime CDATA #REQUIRED
+    usedImagePrompts (T|F) #REQUIRED>
+
+<!ATTLIST Image 
+    filename CDATA #REQUIRED
+    prompt CDATA #REQUIRED
+    NIST-prompt (T|F) #REQUIRED>

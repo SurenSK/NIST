@@ -4,6 +4,7 @@ from PIL import Image
 import torch
 from diffusers import StableDiffusion3Pipeline
 from huggingface_hub import login
+import time
 
 login(token=os.environ.get("HUGGING_FACE_HUB_TOKEN"))
 
@@ -51,8 +52,19 @@ prompt_dir = os.path.join(submission_dir, "images_prompts")
 for d in (image_dir, prompt_dir):
     os.makedirs(d, exist_ok=True)
 
-root = ET.Element("GeneratorRunResult")
+root = ET.Element("GeneratorResults", {"teamName": "GMU"})
 
+run_result_el = ET.SubElement(
+    root,
+    "GeneratorRunResult",
+    {
+        "trainingData": "base/enriched prompt embedding deltas",
+        "priority": "1",
+        "trained": "T",
+        "desc": "Encoder control vector run",
+        "link": "https://huggingface.co/stabilityai/stable-diffusion-3.5-large https://github.com/SurenSK/NIST",
+    },
+)
 resolutions = [(1280, 560), (1280, 720), (1280, 960), (640, 480), (960, 720)]
 
 for i, topic in enumerate(topics):
@@ -60,7 +72,7 @@ for i, topic in enumerate(topics):
     topic_num_full = topic["num"]
     prompt = topic["prompt"]
     topic_id = topic_num_full.split("_")[1]
-    topic_el = ET.SubElement(root, "GeneratorTopicResult", {"topic": topic_num_full, "usedImagePrompts": "F"})
+    topic_el = ET.SubElement(run_result_el, "GeneratorTopicResult", {"topic": topic_num_full, "usedImagePrompts": "F"})    topic_start = time.time()
     for idx, (w, h) in enumerate(resolutions, 1):
         filename = f"topic.{topic_id}.image.{idx}.webp"
         filepath = os.path.join(image_dir, filename)
@@ -69,14 +81,16 @@ for i, topic in enumerate(topics):
         ET.SubElement(topic_el, "Image", {"filename": filename, "prompt": prompt, "NIST-prompt": "T"})
         del image
         torch.cuda.empty_cache()
+    elapsedTime = time.time()-topic_start
+    # The DTD requires the elapsedTime attribute to be set
+    topic_el.set("elapsedTime", str(elapsedTime))
     print(f"Finished {i}")
-
 tree = ET.ElementTree(root)
 ET.indent(tree, space="    ")
 xml_path = os.path.join(submission_dir, "submission.xml")
 with open(xml_path, "wb") as f:
     f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
-    f.write(b'<!DOCTYPE GeneratorRunResult SYSTEM "t2i_GeneratorResult.dtd">\n')
+    f.write(b'<!DOCTYPE GeneratorResults SYSTEM "t2i_GeneratorResult.dtd">\n')
     tree.write(f, encoding="UTF-8")
 
 print(f"\nSuccess! Submission created in the '{submission_dir}/' directory.")
