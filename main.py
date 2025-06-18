@@ -72,7 +72,8 @@ for i, topic in enumerate(topics):
     topic_num_full = topic["num"]
     prompt = topic["prompt"]
     topic_id = topic_num_full.split("_")[1]
-    topic_el = ET.SubElement(run_result_el, "GeneratorTopicResult", {"topic": topic_num_full, "usedImagePrompts": "F"})    topic_start = time.time()
+    topic_el = ET.SubElement(run_result_el, "GeneratorTopicResult", {"topic": topic_num_full, "usedImagePrompts": "F"})
+    topic_start = time.time()
     for idx, (w, h) in enumerate(resolutions, 1):
         filename = f"topic.{topic_id}.image.{idx}.webp"
         filepath = os.path.join(image_dir, filename)
